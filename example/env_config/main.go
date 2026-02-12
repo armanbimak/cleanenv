@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/armanbimak/cleanenv"
 	"log"
 	"net/url"
 	"os"
 	"time"
-
-	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type config struct {
