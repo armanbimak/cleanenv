@@ -3,6 +3,7 @@ package cleanenv
 import (
 	"encoding"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -98,6 +99,36 @@ func ReadConfig(path string, cfg interface{}) error {
 	err := parseFile(path, cfg)
 	if err != nil {
 		return err
+	}
+
+	return readEnvVars(cfg, false)
+}
+
+// ReadOptionalFileConfig reads configuration file if exists and parses it depending on tags in structure provided.
+// Then it reads and parses
+//
+// Example:
+//
+//	type ConfigDatabase struct {
+//		Port     string `yaml:"port" env:"PORT" env-default:"5432"`
+//		Host     string `yaml:"host" env:"HOST" env-default:"localhost"`
+//		Name     string `yaml:"name" env:"NAME" env-default:"postgres"`
+//		User     string `yaml:"user" env:"USER" env-default:"user"`
+//		Password string `yaml:"password" env:"PASSWORD"`
+//	}
+//
+//	var cfg ConfigDatabase
+//
+//	err := cleanenv.ReadConfig("config.yml", &cfg)
+//	if err != nil {
+//	    ...
+//	}
+func ReadOptionalFileConfig(path string, cfg interface{}) error {
+	err := parseFile(path, cfg)
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			return err
+		}
 	}
 
 	return readEnvVars(cfg, false)
